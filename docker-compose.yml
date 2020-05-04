@@ -1,0 +1,10 @@
+version: "2.0"
+services:
+  ranchernodes:
+    build: ./app
+    ports:
+    - "8080:80"
+    volumes:
+    - ~/.kube/config:/root/.kube/config
+    - /docker/ranchernodes/config:/app/config
+    - /docker/ranchernodes/data:/app/data

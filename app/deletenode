@@ -1,0 +1,110 @@
+#!/bin/bash
+newid=$1
+source ./config/envs
+CN=`echo $masterip | cut -d . -f 4`
+
+abort()
+{
+  awk -v var="$newid" -v var2="${vmsubnet::-2}" -v var3="$CN" 'BEGIN { s = var",RancherNode"var",Durduruldu,Worker,"var2"."var",3" } /'"$newid"'/ { $0 = s; n = 1 } 1; END { if(!n) print s }' ./data/nodes.csv > tmp && mv tmp ./data/nodes.csv
+  echo "Islem durduruldu"
+  exit 1
+}
+
+status()
+{
+  awk -v var="$newid" -v var2="${vmsubnet::-2}" -v var3="$CN" -v status="$1" -v statusid="$2" 'BEGIN { s = var",RancherNode"var","status",Worker,"var2"."var","statusid } /'"$newid"'/ { $0 = s; n = 1 } 1; END { if(!n) print s }' ./data/nodes.csv > tmp && mv tmp ./data/nodes.csv
+}
+
+if ! [ $# -eq 1 ]
+  then
+    echo "Gecerli bir parametre ile islemi baslatiniz Orn: 102"
+    exit 1
+fi
+
+if [ "$1" -le 100 ] || [ "$1" -ge 255 ]
+  then
+    echo "Yeni makine numarasi 101 ile 254 arasinda olmalidir"
+    exit 1
+fi
+
+if [ $CN -eq $1 ]
+  then
+    echo "Master makineyi silemezsiniz"
+    exit 1
+fi
+
+grep $1 ./data/nodes.csv
+if ! [ $? -eq 0 ];
+  then
+    echo "$1 numarali node mevcut degil"
+    exit 1
+fi
+
+awk -F, '{print $4}' ./data/nodes.csv | grep -q '2'
+if [ $? -eq 0 ]
+  then
+    echo "Devam eden islem mevcut"
+    exit 1
+fi
+
+cat << EOF > proxstop
+- hosts: localhost
+  remote_user: root
+  gather_facts: False
+  tasks:
+  - name: stopvm
+    proxmox_kvm:
+      api_user    : $proxmoxuser
+      api_password: $proxmoxpass
+      api_host    : $proxmoxhost
+      vmid        : $1
+      node        : $proxmoxnode
+      state       : stopped
+      force       : yes
+      timeout     : $timeout
+EOF
+
+cat << EOF > proxdelete
+- hosts: localhost
+  remote_user: root
+  gather_facts: False
+  tasks:
+  - name: deletevm
+    proxmox_kvm:
+      api_user    : $proxmoxuser
+      api_password: $proxmoxpass
+      api_host    : $proxmoxhost
+      vmid        : $1
+      node        : $proxmoxnode
+      state       : absent
+EOF
+
+if [ "Durduruldu" == "$(awk -F , '$1 == "'"$newid"'" { print $3 }' ./data/nodes.csv)" ]
+  then
+    awk -F, '$1 != "'"$newid"'"' ./data/nodes.csv > tmp && mv tmp ./data/nodes.csv
+    ansible-playbook proxstop
+    ansible-playbook proxdelete
+    echo "Durdurulmus islem kaldirildi"
+    exit 1
+fi
+
+trap 'abort' 0
+set -e
+
+status "Node kubernetes üzerinden çıkartılıyor" "2"
+kubectl delete node ranchernode$1
+
+sleep 15
+
+status "Sanal makine siliniyor" "2"
+ansible-playbook proxstop
+ansible-playbook proxdelete
+
+trap : 0
+
+rm proxstop
+rm proxdelete
+
+awk -F, '$1 != "'"$newid"'"' ./data/nodes.csv > tmp && mv tmp ./data/nodes.csv
+
+echo "Islem tamamlandi"
