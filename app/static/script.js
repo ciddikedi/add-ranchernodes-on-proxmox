@@ -5,11 +5,11 @@ $(document).ready(function(){
         $.getJSON(url, function(data){
             $.each(data, function(key, value){
                 if (value.id == nodeid)
-                    error = 'Node mevcut';
+                    error = 'Node already created';
                 if (error) { evt.preventDefault(); alert(error); return false;}     
             });
             if(!error){
-                alert ("Islem basladi");
+                alert ("Operation started");
                 jQuery.ajax({
                     type: "POST",
                     data: "id=" +nodeid,
@@ -19,7 +19,7 @@ $(document).ready(function(){
         });
     });       
     $(document).on('click', '.deletenode', function(){
-        if (window.confirm('Emin misiniz？')) {
+        if (window.confirm('Are you sure?')) {
             id = jQuery(this).parent().attr("id");
             jQuery.ajax({
                 type: "DELETE",

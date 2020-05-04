@@ -17,7 +17,7 @@ ENV PATH="/opt/bitnami/kubectl/bin:$PATH"
 WORKDIR /app
 COPY . /app
 RUN pip install -r requirements.txt
-RUN chmod +x addnode deletenode proxmoxlist app.py
+RUN chmod +x addnode.sh deletenode.sh proxmoxlist.sh app.py
 
 ENTRYPOINT [ "/bin/bash", "init.sh" ]
 

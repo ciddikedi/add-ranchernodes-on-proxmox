@@ -52,8 +52,6 @@ nodecommand="sudo docker run -d --privileged --restart=unless-stopped \
 --ca-checksum 9f3c78ad3cf1d58b97c65b6a0a97a78bc7b8723f4108bfe4e1cdaf34e0d12609 --worker"
 ```
 
-After `docker-compose up` command, the Web UI able to avaible at `<master-ip>:8080` The port is changeable from `docker-compose.yaml` file.
+After `docker-compose up` command, the Web UI will be avaible at `<master-ip>:8080` The port is changeable from `docker-compose.yaml` file.
 
-![](images/ui.jpg)
-
-The project will be updated as English soon
+![](images/ui.png)

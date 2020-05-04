@@ -21,7 +21,7 @@ def log():
 
 @app.route('/api/list', methods=['GET'])
 def vmlist():  
-    list = os.popen('./proxmoxlist').read()
+    list = os.popen('./proxmoxlist.sh').read()
     return jsonify(json.JSONDecoder().decode(list))
 
 @app.route('/api/list/nodes', methods=['GET'])
@@ -48,7 +48,7 @@ def master():
 
 @app.route('/api/list/nodes', methods=['POST'])
 def ekle():
-    os.popen('./addnode ' +  request.values.get('id') + ' > log')
+    os.popen('./addnode.sh ' +  request.values.get('id') + ' > log')
     params = {
         'status': 'preparing',
         'id': request.values.get('id')
@@ -57,7 +57,7 @@ def ekle():
 
 @app.route('/api/list/nodes', methods=['DELETE'])
 def sil():
-    os.popen('./deletenode ' +  request.values.get('id') + ' > log')
+    os.popen('./deletenode.sh ' +  request.values.get('id') + ' > log')
     params = {
         'status': 'preparing',
         'id': request.values.get('id')

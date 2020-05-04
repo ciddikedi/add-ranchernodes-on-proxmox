@@ -5,8 +5,8 @@ CN=`echo $masterip | cut -d . -f 4`
 
 abort()
 {
-  awk -v var="$newid" -v var2="${vmsubnet::-2}" -v var3="$CN" 'BEGIN { s = var",RancherNode"var",Durduruldu,Worker,"var2"."var",3" } /'"$newid"'/ { $0 = s; n = 1 } 1; END { if(!n) print s }' ./data/nodes.csv > tmp && mv tmp ./data/nodes.csv
-  echo "Islem durduruldu"
+  awk -v var="$newid" -v var2="${vmsubnet::-2}" -v var3="$CN" 'BEGIN { s = var",RancherNode"var",Stopped,Worker,"var2"."var",3" } /'"$newid"'/ { $0 = s; n = 1 } 1; END { if(!n) print s }' ./data/nodes.csv > tmp && mv tmp ./data/nodes.csv
+  echo "Operation stopped"
   exit 1
 }
 
@@ -17,33 +17,33 @@ status()
 
 if ! [ $# -eq 1 ]
   then
-    echo "Gecerli bir parametre ile islemi baslatiniz Orn: 102"
+    echo "Use a valid variable"
     exit 1
 fi
 
 if [ "$1" -le 100 ] || [ "$1" -ge 255 ]
   then
-    echo "Yeni makine numarasi 101 ile 254 arasinda olmalidir"
+    echo "ID number of new machine should be between 101 and 254"
     exit 1
 fi
 
 if [ $CN -eq $1 ]
   then
-    echo "Master makineyi silemezsiniz"
+    echo "You can't delete master machine"
     exit 1
 fi
 
 grep $1 ./data/nodes.csv
 if ! [ $? -eq 0 ];
   then
-    echo "$1 numarali node mevcut degil"
+    echo "$1 of number machine is not avaible"
     exit 1
 fi
 
 awk -F, '{print $4}' ./data/nodes.csv | grep -q '2'
 if [ $? -eq 0 ]
   then
-    echo "Devam eden islem mevcut"
+    echo "There is an operation in progress"
     exit 1
 fi
 
@@ -79,24 +79,24 @@ cat << EOF > proxdelete
       state       : absent
 EOF
 
-if [ "Durduruldu" == "$(awk -F , '$1 == "'"$newid"'" { print $3 }' ./data/nodes.csv)" ]
+if [ "Stopped" == "$(awk -F , '$1 == "'"$newid"'" { print $3 }' ./data/nodes.csv)" ]
   then
     awk -F, '$1 != "'"$newid"'"' ./data/nodes.csv > tmp && mv tmp ./data/nodes.csv
     ansible-playbook proxstop
     ansible-playbook proxdelete
-    echo "Durdurulmus islem kaldirildi"
+    echo "Stopped operation was deleted"
     exit 1
 fi
 
 trap 'abort' 0
 set -e
 
-status "Node kubernetes üzerinden çıkartılıyor" "2"
+status "Node being deleted from Kubernetes" "2"
 kubectl delete node ranchernode$1
 
 sleep 15
 
-status "Sanal makine siliniyor" "2"
+status "Virtual machine being deleted" "2"
 ansible-playbook proxstop
 ansible-playbook proxdelete
 
@@ -107,4 +107,4 @@ rm proxdelete
 
 awk -F, '$1 != "'"$newid"'"' ./data/nodes.csv > tmp && mv tmp ./data/nodes.csv
 
-echo "Islem tamamlandi"
+echo "Done"

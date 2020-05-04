@@ -19,18 +19,18 @@
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item active">
-                        <a class="nav-link" href="#">Anasayfa <span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="#">Homepage<span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onClick="MyWindow=window.open('/api/logs','MyWindow','width=1000,height=500'); return false;">Günlükler</a>
+                        <a class="nav-link" href="#" onClick="MyWindow=window.open('/api/logs','MyWindow','width=1000,height=500'); return false;">Logs</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onClick="alert('Osman Bedrettin Yüce tarafindan hazirlanmistir.')">Hakkında</a>
+                        <a class="nav-link" href="#" onClick="alert('This project was made by Osman Bedrettin Yüce.')">About</a>
                     </li>
                 </ul>
                 <form class="form-inline" id="addnode">
                     <input class="form-control mr-sm-1" type="number" placeholder="#" id="node" min="102" max="254" required>
-                    <button class="btn btn-dark my-2 my-sm-0" type="submit">Ekle</button>
+                    <button class="btn btn-dark my-2 my-sm-0" type="submit">Add</button>
                 </form>
             </div>
         </div>
@@ -42,10 +42,10 @@
                 <tr>
                     <th>#</th>
                     <th>Hostname</th>
-                    <th>Durum</th>
-                    <th>Rol</th>
+                    <th>Status</th>
+                    <th>Role</th>
                     <th>IP</th>
-                    <th>Kaldır</th>
+                    <th>Remove</th>
                 </tr>
             </thead>
             <tbody id="master">
